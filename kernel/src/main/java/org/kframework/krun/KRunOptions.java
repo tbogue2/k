@@ -305,5 +305,8 @@ public final class KRunOptions {
 
         @Parameter(names="--kore", description="Execute with the new pipeline.")
         public boolean kore = false;
+
+        @Parameter(names="--testgen", description="Generate test programs for the kompiled semantics.")
+        public boolean testgen = false;
     }
 }

@@ -18,6 +18,7 @@ import org.kframework.krun.KRunOptions.ConfigurationCreationOptions;
 import org.kframework.krun.api.KRunResult;
 import org.kframework.krun.tools.Executor;
 import org.kframework.krun.tools.Prover;
+import org.kframework.krun.tools.Testgen;
 import org.kframework.main.AnnotatedByDefinitionModule;
 import org.kframework.transformation.ToolActivation;
 import org.kframework.transformation.Transformation;
@@ -67,6 +68,10 @@ public class JavaSymbolicKRunModule extends AbstractModule {
             MapBinder<String, Prover> proverBinder = MapBinder.newMapBinder(
                     binder(), String.class, Prover.class);
             proverBinder.addBinding("java").to(JavaSymbolicProver.class);
+
+            MapBinder<String, Testgen> testgenBinder = MapBinder.newMapBinder(
+                    binder(), String.class, Testgen.class);
+            testgenBinder.addBinding("java").to(JavaSymbolicTestgen.class);
 
             MapBinder<String, Executor> executorBinder = MapBinder.newMapBinder(
                     binder(), String.class, Executor.class);

@@ -47,6 +47,7 @@ import org.kframework.krun.tools.Debugger;
 import org.kframework.krun.tools.Executor;
 import org.kframework.krun.tools.LtlModelChecker;
 import org.kframework.krun.tools.Prover;
+import org.kframework.krun.tools.Testgen;
 import org.kframework.main.AnnotatedByDefinitionModule;
 import org.kframework.main.FrontEnd;
 import org.kframework.main.GlobalOptions;
@@ -143,6 +144,7 @@ public class KRunModule extends AbstractModule {
         krunResultTools.addBinding(new ToolActivation.OptionActivation("--ltlmc")).to(LtlModelChecker.Tool.class);
         krunResultTools.addBinding(new ToolActivation.OptionActivation("--ltlmc-file")).to(LtlModelChecker.Tool.class);
         krunResultTools.addBinding(new ToolActivation.OptionActivation("--prove")).to(Prover.Tool.class);
+        krunResultTools.addBinding(new ToolActivation.OptionActivation("--testgen")).to(Testgen.Tool.class);
 
         MapBinder<ToolActivation, Transformation<KRunResult, InputStream>> krunResultPrinters = MapBinder.newMapBinder(
                 binder(), TypeLiteral.get(ToolActivation.class), new TypeLiteral<Transformation<KRunResult, InputStream>>() {});
@@ -206,6 +208,9 @@ public class KRunModule extends AbstractModule {
             MapBinder.newMapBinder(
                     binder(), String.class, Prover.class);
 
+            MapBinder.newMapBinder(
+                    binder(), String.class, Testgen.class);
+
             //TODO(cos): move to tiny module
             rewriterBinder.addBinding("tiny").toInstance(m -> new org.kframework.tiny.Rewriter(m));
 
@@ -261,6 +266,16 @@ public class KRunModule extends AbstractModule {
             Provider<Prover> provider = map.get(options.backend);
             if (provider == null) {
                 throw KEMException.criticalError("Backend " + options.backend + " does not support program verification. Supported backends are: "
+                        + map.keySet());
+            }
+            return provider.get();
+        }
+
+        @Provides
+        Testgen getTestgen(KompileOptions options, Map<String, Provider<Testgen>> map, KExceptionManager kem) {
+            Provider<Testgen> provider = map.get(options.backend);
+            if (provider == null) {
+                throw KEMException.criticalError("Backend " + options.backend + " does not support test generation. Supported backends are: "
                         + map.keySet());
             }
             return provider.get();
