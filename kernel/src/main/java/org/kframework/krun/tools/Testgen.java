@@ -11,6 +11,7 @@ import org.kframework.kil.loader.Context;
 import org.kframework.krun.KRunExecutionException;
 import org.kframework.krun.KRunOptions;
 import org.kframework.krun.api.KRunResult;
+import org.kframework.krun.api.TestgenResults;
 import org.kframework.parser.TermLoader;
 import org.kframework.transformation.Transformation;
 import org.kframework.utils.Stopwatch;
@@ -51,7 +52,7 @@ public interface Testgen {
         public KRunResult run(Void v, Attributes a) {
             System.out.println("initialConfiguration:\n" + initialConfiguration.toString());
             System.out.println("Hello, testgen!");
-            return null;
+            return new TestgenResults("No interesting results yet.");
         }
 
         @Override

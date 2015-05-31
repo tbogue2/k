@@ -11,6 +11,7 @@ import org.kframework.krun.api.KRunProofResult;
 import org.kframework.krun.api.KRunResult;
 import org.kframework.krun.api.KRunState;
 import org.kframework.krun.api.SearchResults;
+import org.kframework.krun.api.TestgenResults;
 import org.kframework.transformation.Transformation;
 import org.kframework.utils.inject.InjectGeneric;
 
@@ -21,6 +22,7 @@ public class PrintKRunResult implements Transformation<KRunResult, InputStream> 
     @InjectGeneric private Transformation<KRunState, String> statePrinter;
     @InjectGeneric private Transformation<SearchResults, String> searchResultsPrinter;
     @InjectGeneric private Transformation<KRunGraph, String> graphPrinter;
+    @InjectGeneric private Transformation<TestgenResults, String> testgenPrinter;
 
     @Inject
     public PrintKRunResult() {}
@@ -28,10 +30,12 @@ public class PrintKRunResult implements Transformation<KRunResult, InputStream> 
     public PrintKRunResult(
             Transformation<KRunState, String> statePrinter,
             Transformation<SearchResults, String> searchResultsPrinter,
-            Transformation<KRunGraph, String> graphPrinter) {
+            Transformation<KRunGraph, String> graphPrinter,
+            Transformation<TestgenResults, String> testgenPrinter) {
         this.statePrinter = statePrinter;
         this.searchResultsPrinter = searchResultsPrinter;
         this.graphPrinter = graphPrinter;
+        this.testgenPrinter = testgenPrinter;
     }
 
     @Override
@@ -52,6 +56,8 @@ public class PrintKRunResult implements Transformation<KRunResult, InputStream> 
             return graphPrinter.run((KRunGraph)result, a);
         } else if (result instanceof KRunProofResult && (!((KRunProofResult) result).isProven())) {
             return print(((KRunProofResult) result).getResult(), a);
+        } else if (result instanceof TestgenResults) {
+            return testgenPrinter.run((TestgenResults)result, a);
         } else if (result instanceof Set) {
             int i = 1;
             for (Object o : ((Set<?>)result)) {

@@ -27,6 +27,7 @@ import org.kframework.backend.unparser.PrintKRunResult;
 import org.kframework.backend.unparser.PrintSearchResult;
 import org.kframework.backend.unparser.PrintSearchResults;
 import org.kframework.backend.unparser.PrintTerm;
+import org.kframework.backend.unparser.PrintTestgenResults;
 import org.kframework.backend.unparser.PrintTransition;
 import org.kframework.kil.ASTNode;
 import org.kframework.kil.Configuration;
@@ -40,6 +41,7 @@ import org.kframework.krun.api.KRunResult;
 import org.kframework.krun.api.KRunState;
 import org.kframework.krun.api.SearchResult;
 import org.kframework.krun.api.SearchResults;
+import org.kframework.krun.api.TestgenResults;
 import org.kframework.krun.api.Transition;
 import org.kframework.krun.api.io.FileSystem;
 import org.kframework.krun.ioserver.filesystem.portable.PortableFileSystem;
@@ -127,6 +129,7 @@ public class KRunModule extends AbstractModule {
         bind(new TypeLiteral<TransformationProvider<Transformation<SearchResults, String>>>() {}).to(new TypeLiteral<BasicTransformationProvider<Transformation<SearchResults, String>, PrintSearchResults>>() {});
         bind(new TypeLiteral<TransformationProvider<Transformation<Map<String, Term>, String>>>() {}).to(new TypeLiteral<BasicTransformationProvider<Transformation<Map<String, Term>, String>, PrintSearchResult>>() {});
         bind(new TypeLiteral<TransformationProvider<Transformation<KRunGraph, String>>>() {}).to(new TypeLiteral<BasicTransformationProvider<Transformation<KRunGraph, String>, PrintKRunGraph>>() {});
+        bind(new TypeLiteral<TransformationProvider<Transformation<TestgenResults, String>>>() {}).to(new TypeLiteral<BasicTransformationProvider<Transformation<TestgenResults, String>, PrintTestgenResults>>() {});
         bind(new TypeLiteral<TransformationProvider<Transformation<InputStream, Void>>>() {}).to(new TypeLiteral<BasicTransformationProvider<Transformation<InputStream, Void>, WriteOutput>>() {});
 
         // bind providers for transformatinos composed of smaller transformations
