@@ -85,6 +85,5 @@ public class JavaSymbolicTestgen implements Testgen {
         System.out.println("initialState:\n" + initialState);
 
         return new TestgenResults("Results not yet properly specified.");
-        
     }
 }
