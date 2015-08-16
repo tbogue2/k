@@ -3,6 +3,7 @@ package org.kframework.backend.java.util;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
+import com.microsoft.z3.Model;
 import com.microsoft.z3.Params;
 import com.microsoft.z3.Solver;
 import com.microsoft.z3.Status;
@@ -29,11 +30,14 @@ public class Z3Wrapper {
 
     private static final Set<String> Z3_QUERY_RESULTS = ImmutableSet.of("unknown", "sat", "unsat");
 
+    private static final int COLLECTION_RATE = 10;
+
     public final String SMT_PRELUDE;
     private final SMTOptions options;
     private final GlobalOptions globalOptions;
     private final KExceptionManager kem;
     private final FileUtil files;
+    private static int collectionCounter = 0;
 
     @Inject
     public Z3Wrapper(
@@ -47,6 +51,17 @@ public class Z3Wrapper {
         this.files = files;
 
         SMT_PRELUDE = options.smtPrelude == null ? "" : files.loadFromWorkingDirectory(options.smtPrelude);
+    }
+
+    //z3 uses native code that stores larger amounts of data then java predicts,
+    //so the garbage collector can wait too long before cleaning it up
+    //causing unpredictable out-of-memory errors.
+    //Thus, we explicitly call the garbage collector periodically to make sure
+    //this will not happen.
+    private static void cleanMemory() {
+        if((collectionCounter++ % COLLECTION_RATE) == 0) {
+            System.gc();
+        }
     }
 
     public boolean checkQuery(String query, int timeout) {
@@ -68,6 +83,37 @@ public class Z3Wrapper {
             solver.add(context.parseSMTLIB2String(SMT_PRELUDE + query, null, null, null, null));
             result = solver.check() == Status.UNSATISFIABLE;
             context.dispose();
+            params.dispose();
+            solver.dispose();
+            cleanMemory();
+        } catch (Z3Exception e) {
+            kem.registerCriticalWarning(
+                    "failed to translate smtlib expression:\n" + SMT_PRELUDE + query);
+        } catch (UnsatisfiedLinkError e) {
+            System.err.println(System.getProperty("java.library.path"));
+            throw e;
+        }
+        return result;
+    }
+
+    //assumes that the library should be used for now; using the binary may avoid some crashes
+    //gets a Model for the query,
+    //or null of the query is unsatisfiable
+    public Model getModelForQueury(String query, int timeout) {
+        Model result = null;
+        try {
+            com.microsoft.z3.Context context = new com.microsoft.z3.Context();
+            Solver solver = context.mkSolver();
+            Params params = context.mkParams();
+            params.add("timeout", timeout);
+            solver.setParameters(params);
+            solver.add(context.parseSMTLIB2String(SMT_PRELUDE + query, null, null, null, null));
+            solver.check();
+            result = solver.getModel();
+            context.dispose();
+            params.dispose();
+            solver.dispose();
+            cleanMemory();
         } catch (Z3Exception e) {
             kem.registerCriticalWarning(
                     "failed to translate smtlib expression:\n" + SMT_PRELUDE + query);

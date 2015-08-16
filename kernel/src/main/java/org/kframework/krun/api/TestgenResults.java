@@ -1,14 +1,16 @@
 // Copyright (c) 2013-2015 K Team. All Rights Reserved.
 package org.kframework.krun.api;
 
-public class TestgenResults implements KRunResult {
-    private String results;
+import java.util.List;
 
-    public TestgenResults(String results) {
+public class TestgenResults implements KRunResult {
+    private List<String> results;
+
+    public TestgenResults(List<String> results) {
         this.results = results;
     }
 
-    public String getResults() {
+    public List<String> getResults() {
         return results;
     }
 }

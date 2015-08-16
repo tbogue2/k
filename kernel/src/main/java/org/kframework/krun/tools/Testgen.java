@@ -20,7 +20,6 @@ import org.kframework.krun.api.TestgenResults;
 import org.kframework.parser.TermLoader;
 import org.kframework.transformation.Transformation;
 import org.kframework.utils.Stopwatch;
-import org.kframework.utils.errorsystem.KEMException;
 import org.kframework.utils.errorsystem.KExceptionManager;
 import org.kframework.utils.errorsystem.ParseFailedException;
 import org.kframework.utils.inject.Main;
@@ -29,7 +28,7 @@ public interface Testgen {
     /**
      * @return the generated results
      */
-    public abstract TestgenResults generate(Integer depth, Rule pattern, Term cfg);
+    public abstract TestgenResults generate(Integer depth, Integer bound, Rule pattern, Term cfg);
 
     public static class Tool implements Transformation<Void, KRunResult> {
 
@@ -79,11 +78,9 @@ public interface Testgen {
         @Override
         public KRunResult run(Void v, Attributes a) {
             ASTNode pattern = pattern(options.pattern);
-            System.out.println(pattern);
             SearchPattern searchPattern = new SearchPattern(pattern);
-            System.out.println("Hello, testgen!");
             sw.printIntermediate("Testgen start");
-            TestgenResults reults = generator.generate(options.depth, searchPattern.patternRule, initialConfiguration);
+            TestgenResults reults = generator.generate(options.depth, options.bound, searchPattern.patternRule, initialConfiguration);
             sw.printIntermediate("Testgen end");
             return reults;
         }

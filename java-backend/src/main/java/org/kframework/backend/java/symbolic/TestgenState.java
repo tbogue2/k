@@ -8,6 +8,7 @@ import org.kframework.backend.java.kil.Variable;
 import org.kframework.backend.java.util.Utils;
 
 import java.util.Map;
+import java.util.Set;
 
 public class TestgenState {
     /**
@@ -17,8 +18,17 @@ public class TestgenState {
 
     private final ConstrainedTerm term;
 
-    public TestgenState(ConstrainedTerm term) {
+    private final Map<Variable, TestgenDepthLimits> depthLimits;
+
+    //these are intentionally left out of the equals and hash methods
+    private final int remainingRuntime;
+    private final int depth;
+
+    public TestgenState(ConstrainedTerm term, Map<Variable, TestgenDepthLimits> depthLimits, int remainingRuntime, int depth) {
         this.term = term;
+        this.depthLimits = depthLimits;
+        this.remainingRuntime = remainingRuntime;
+        this.depth = depth;
     }
 
     public ConstrainedTerm getConstrainedTerm() {
@@ -41,6 +51,26 @@ public class TestgenState {
         return term.constraint().substitution();
     }
 
+    public Map<Variable, TestgenDepthLimits> depthLimits() {
+        return depthLimits;
+    }
+
+    public TestgenDepthLimits getDepthLimit(Variable var) {
+        return depthLimits.get(var);
+    }
+
+    public Set<Variable> getDepthLimitKeys() {
+        return depthLimits.keySet();
+    }
+
+    public int getRemainingRuntime() {
+        return remainingRuntime;
+    }
+
+    public int getDepth() {
+        return depth;
+    }
+
     @Override
     public boolean equals(Object object) {
         if (this == object) {
@@ -52,7 +82,8 @@ public class TestgenState {
         }
 
         TestgenState testgenState = (TestgenState) object;
-        return term.equals(testgenState.term);
+        return term.equals(testgenState.term) &&
+               depthLimits.equals(testgenState.depthLimits);
     }
 
     @Override
@@ -61,6 +92,7 @@ public class TestgenState {
         if (h == Utils.NO_HASHCODE) {
             h = 1;
             h = h * Utils.HASH_PRIME + term.hashCode();
+            h = h * Utils.HASH_PRIME + depthLimits.hashCode();
             h = h == 0 ? 1 : h;
             hashCode = h;
         }
@@ -69,9 +101,12 @@ public class TestgenState {
 
     @Override
     public String toString() {
-        String result = "Term: " + term + "\n";
-        result = result + "Substitution:\n";
+        String result = "Term:\n" + term + "\n";
         result = result + "Depth Limits:\n";
+        for(Variable var: depthLimits.keySet()) {
+            result = result + var + " -> {" + depthLimits.get(var) + "}\n";
+        }
+        result = result + "Remaining Runtime: " + remainingRuntime + "\n";
         return result;
     }
 
